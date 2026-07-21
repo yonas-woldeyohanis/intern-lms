@@ -74,16 +74,16 @@ export default function LoginPage() {
           <div className="grid h-10 w-10 place-items-center rounded-lg bg-accent-400 text-brand-950">
             <Library className="h-6 w-6" />
           </div>
-          <span className="text-lg font-bold drop-shadow-lg">BMVEI Library</span>
+          <span className="text-lg font-bold drop-shadow-lg">BMVEI Library Management System</span>
         </div>
         <div className="relative z-10">
           <h1 className="text-3xl font-bold leading-tight drop-shadow-lg">
             Bishoftu Motor Vehicle<br />Engineering Industry
           </h1>
-          <p className="mt-4 max-w-md text-white/90 drop-shadow text-sm leading-relaxed">
+          {/* <p className="mt-4 max-w-md text-white/90 drop-shadow text-sm leading-relaxed">
             A modern digital library platform replacing paper-based records — search, borrow,
             reserve, and track books across the organization from any workstation on the network.
-          </p>
+          </p> */}
         </div>
         <p className="relative z-10 text-xs text-white/60 drop-shadow">&copy; {new Date().getFullYear()} BMVEI. Internal use only.</p>
       </div>
