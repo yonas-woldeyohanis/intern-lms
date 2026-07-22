@@ -199,10 +199,10 @@ export default function Topbar({ onOpenMobile, breadcrumb }) {
             className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <div className="grid h-8 w-8 place-items-center rounded-full bg-brand-800 text-xs font-bold text-white shrink-0">
-              {(user?.firstName || 'U')[0]}{(user?.lastName || '')[0]}
+              {(user?.first_name || 'U')[0]}{(user?.last_name || '')[0]}
             </div>
             <div className="hidden text-left sm:block">
-              <p className="text-sm font-semibold leading-tight text-slate-700 dark:text-slate-200">{fullName({ first_name: user?.firstName, last_name: user?.lastName })}</p>
+              <p className="text-sm font-semibold leading-tight text-slate-700 dark:text-slate-200">{fullName({ first_name: user?.first_name, last_name: user?.last_name })}</p>
               <p className="text-xs capitalize leading-tight text-slate-400">{user?.role}</p>
             </div>
             <ChevronDown className={`h-4 w-4 text-slate-400 transition-transform duration-150 ${menuOpen ? 'rotate-180' : ''}`} />
@@ -213,7 +213,7 @@ export default function Topbar({ onOpenMobile, breadcrumb }) {
               <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
               <div className="absolute right-0 z-20 mt-2 w-52 rounded-2xl border border-white/20 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl py-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                 <div className="px-4 py-3 border-b border-slate-200/50 dark:border-slate-700/50 mb-1">
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{fullName({ first_name: user?.firstName, last_name: user?.lastName })}</p>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{fullName({ first_name: user?.first_name, last_name: user?.last_name })}</p>
                   <p className="text-xs text-slate-400 capitalize">{user?.role} · {user?.email}</p>
                 </div>
                 <button

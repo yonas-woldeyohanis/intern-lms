@@ -21,13 +21,14 @@ import { useAuthorsOptions, useCategoriesOptions } from '../hooks/useLookups';
 import BookFormModal from '../components/books/BookFormModal';
 import BookQrModal from '../components/books/BookQrModal';
 import BookBulkImportModal from '../components/books/BookBulkImportModal';
+import BookDetailsModal from '../components/books/BookDetailsModal';
 import { usePublishersOptions, useShelvesOptions } from '../hooks/useLookups';
 import axiosClient from '../api/axiosClient';
 
 const STATUS_VARIANT = { available: 'success', unavailable: 'warning', archived: 'neutral' };
 
 // ─── Book Card for user grid view ───────────────────────────────────────────
-function BookCard({ book, onReserve, isReserving, isUser }) {
+function BookCard({ book, onReserve, isReserving, isUser, onClick }) {
   const hasImage = !!book.cover_image_url;
 
   // Generate a pleasant gradient based on book ID
@@ -49,7 +50,8 @@ function BookCard({ book, onReserve, isReserving, isUser }) {
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
       }}
-      className="group flex flex-col rounded-2xl bg-white dark:bg-slate-900 shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-200 hover:-translate-y-1"
+      className="group flex flex-col rounded-2xl bg-white dark:bg-slate-900 shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-200 hover:-translate-y-1 cursor-pointer"
+      onClick={() => onClick(book)}
     >
       {/* Cover */}
       <div className="relative h-44 w-full overflow-hidden">
@@ -95,20 +97,16 @@ function BookCard({ book, onReserve, isReserving, isUser }) {
           </div>
         )}
 
-        {/* Reserve button — only shown to regular users */}
-        {isUser && (
+        {/* Reserve button — only shown to regular users when book is unavailable */}
+        {isUser && !isAvailable && book.status !== 'archived' && (
           <div className="mt-auto pt-3">
             <button
-              onClick={() => onReserve(book)}
-              disabled={!isAvailable || isReserving}
-              className={`w-full flex items-center justify-center gap-2 text-sm font-medium py-2 rounded-xl transition-all ${
-                isAvailable
-                  ? 'bg-brand-600 hover:bg-brand-700 text-white shadow-sm'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
-              }`}
+              onClick={(e) => { e.stopPropagation(); onReserve(book); }}
+              disabled={isReserving}
+              className="w-full flex items-center justify-center gap-2 text-sm font-medium py-2 rounded-xl transition-all bg-brand-600 hover:bg-brand-700 text-white shadow-sm disabled:opacity-50"
             >
               <CalendarPlus className="h-4 w-4" />
-              {isAvailable ? 'Reserve' : 'Unavailable'}
+              Reserve
             </button>
           </div>
         )}
@@ -140,6 +138,7 @@ export default function BooksPage() {
   const [reservingId, setReservingId] = useState(null);
   const [importOpen, setImportOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [detailsBook, setDetailsBook] = useState(null);
 
   const categoryOptions = useCategoriesOptions();
   const authorOptions = useAuthorsOptions();
@@ -244,9 +243,9 @@ export default function BooksPage() {
       header: '', id: 'actions',
       cell: ({ row }) => (
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-          {isUser && row.original.available_copies > 0 && (
+          {isUser && row.original.available_copies === 0 && row.original.status !== 'archived' && (
             <button
-              className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-brand-50 text-brand-600 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-300 font-medium"
+              className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-brand-50 text-brand-600 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-300 font-medium disabled:opacity-50"
               onClick={() => handleReserve(row.original)}
               disabled={reservingId === row.original.id}
             >
@@ -373,6 +372,7 @@ export default function BooksPage() {
                   isUser={isUser}
                   onReserve={handleReserve}
                   isReserving={reservingId === book.id}
+                  onClick={setDetailsBook}
                 />
               ))}
             </motion.div>
@@ -397,6 +397,7 @@ export default function BooksPage() {
             sortBy={sortBy}
             sortDir={sortDir}
             onSortChange={handleSortChange}
+            onRowClick={setDetailsBook}
           />
           {data && data.total > 0 && (
             <Pagination page={page} limit={data.limit} total={data.total} onPageChange={setPage} />
@@ -424,6 +425,14 @@ export default function BooksPage() {
         open={importOpen} 
         onClose={() => setImportOpen(false)} 
         onSuccess={() => queryClient.invalidateQueries({ queryKey: ['books'] })}
+      />
+      <BookDetailsModal
+        open={!!detailsBook}
+        onClose={() => setDetailsBook(null)}
+        book={detailsBook}
+        isUser={isUser}
+        onReserve={handleReserve}
+        isReserving={reservingId === detailsBook?.id}
       />
     </div>
   );
