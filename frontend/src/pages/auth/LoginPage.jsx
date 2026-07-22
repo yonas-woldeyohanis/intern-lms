@@ -64,25 +64,18 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
       <div 
-        className="hidden lg:flex lg:w-1/2 flex-col justify-between p-12 text-white relative bg-cover bg-center bg-no-repeat"
+        className="hidden lg:flex lg:w-1/2 flex-col p-12 text-white relative bg-cover bg-center bg-no-repeat text-center"
         style={{ backgroundImage: 'url("/ENGINEERING-CORP.png")' }}
       >
         {/* Gradient overlay - transparent top, dark bottom for text readability */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(10,30,50,0.35) 0%, rgba(10,30,50,0.55) 50%, rgba(10,30,50,0.88) 100%)' }} />
         
-        <div className="relative z-10 flex items-center">
-          <span className="text-lg font-bold drop-shadow-lg">BMVEI Library Management System</span>
-        </div>
-        <div className="relative z-10">
-          <h1 className="text-3xl font-bold leading-tight drop-shadow-lg">
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
+          <h1 className="text-4xl font-bold leading-tight drop-shadow-lg">
             Bishoftu Motor Vehicle<br />Engineering Industry
           </h1>
-          {/* <p className="mt-4 max-w-md text-white/90 drop-shadow text-sm leading-relaxed">
-            A modern digital library platform replacing paper-based records — search, borrow,
-            reserve, and track books across the organization from any workstation on the network.
-          </p> */}
         </div>
-        <p className="relative z-10 text-xs text-white/60 drop-shadow">&copy; {new Date().getFullYear()} BMVEI. Internal use only.</p>
+        <p className="relative z-10 text-xs text-white/60 drop-shadow mt-auto">&copy; {new Date().getFullYear()} BMVEI. Internal use only.</p>
       </div>
 
       <div className="flex w-full items-center justify-center lg:w-1/2 px-6">
