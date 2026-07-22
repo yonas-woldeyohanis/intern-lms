@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, Users, ArrowLeftRight, BookMarked, Tags,
-  UserSquare2, Building2, Warehouse, FileBarChart, ShieldCheck, Settings, X, Library
+  UserSquare2, Building2, Warehouse, FileBarChart, ShieldCheck, Settings, X
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useUiStore } from '../../store/uiStore';
@@ -38,8 +38,8 @@ export default function Sidebar({ mobileOpen, onCloseMobile }) {
       >
         <div className="flex items-center justify-between px-5 py-5 border-b border-white/10">
           <div className="flex items-center gap-2 overflow-hidden">
-            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent-400 text-brand-950 font-bold">
-              <Library className="h-5 w-5" />
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent-400 text-brand-950 font-bold text-lg">
+              B
             </div>
             {!sidebarCollapsed && (
               <div className="leading-tight">

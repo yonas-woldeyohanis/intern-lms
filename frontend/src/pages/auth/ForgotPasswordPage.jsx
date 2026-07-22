@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Library, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { authApi } from '../../api/endpoints';
 import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
@@ -29,9 +29,9 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex items-center gap-2 justify-center">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-brand-800 text-accent-400">
-            <Library className="h-6 w-6" />
+        <div className="mb-8 flex items-center gap-3 justify-center">
+          <div className="grid h-10 w-10 place-items-center rounded-lg bg-brand-800 text-accent-400 font-bold text-xl">
+            B
           </div>
           <span className="text-lg font-semibold text-brand-900 dark:text-white">BMVEI Library</span>
         </div>

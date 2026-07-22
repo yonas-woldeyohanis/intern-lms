@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff, Library, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { authApi } from '../../api/endpoints';
 import { useAuthStore } from '../../store/authStore';
 import Input from '../../components/ui/Input';
@@ -70,9 +70,9 @@ export default function LoginPage() {
         {/* Gradient overlay - transparent top, dark bottom for text readability */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(10,30,50,0.35) 0%, rgba(10,30,50,0.55) 50%, rgba(10,30,50,0.88) 100%)' }} />
         
-        <div className="relative z-10 flex items-center gap-2">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-accent-400 text-brand-950">
-            <Library className="h-6 w-6" />
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="grid h-10 w-10 place-items-center rounded-lg bg-accent-400 text-brand-950 font-bold text-xl">
+            B
           </div>
           <span className="text-lg font-bold drop-shadow-lg">BMVEI Library Management System</span>
         </div>
@@ -90,9 +90,9 @@ export default function LoginPage() {
 
       <div className="flex w-full items-center justify-center lg:w-1/2 px-6">
         <div className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden flex items-center gap-2 justify-center">
-            <div className="grid h-10 w-10 place-items-center rounded-lg bg-brand-800 text-accent-400">
-              <Library className="h-6 w-6" />
+          <div className="mb-8 lg:hidden flex items-center gap-3 justify-center">
+            <div className="grid h-10 w-10 place-items-center rounded-lg bg-brand-800 text-accent-400 font-bold text-xl">
+              B
             </div>
             <span className="text-lg font-semibold text-brand-900 dark:text-white">BMVEI Library</span>
           </div>
