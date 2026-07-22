@@ -70,10 +70,7 @@ export default function LoginPage() {
         {/* Gradient overlay - transparent top, dark bottom for text readability */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(10,30,50,0.35) 0%, rgba(10,30,50,0.55) 50%, rgba(10,30,50,0.88) 100%)' }} />
         
-        <div className="relative z-10 flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-accent-400 text-brand-950 font-bold text-xl">
-            B
-          </div>
+        <div className="relative z-10 flex items-center">
           <span className="text-lg font-bold drop-shadow-lg">BMVEI Library Management System</span>
         </div>
         <div className="relative z-10">
@@ -90,10 +87,7 @@ export default function LoginPage() {
 
       <div className="flex w-full items-center justify-center lg:w-1/2 px-6">
         <div className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden flex items-center gap-3 justify-center">
-            <div className="grid h-10 w-10 place-items-center rounded-lg bg-brand-800 text-accent-400 font-bold text-xl">
-              B
-            </div>
+          <div className="mb-8 lg:hidden flex items-center justify-center">
             <span className="text-lg font-semibold text-brand-900 dark:text-white">BMVEI Library</span>
           </div>
 

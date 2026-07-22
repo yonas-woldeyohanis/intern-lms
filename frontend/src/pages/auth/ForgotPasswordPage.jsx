@@ -29,10 +29,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        <div className="mb-8 flex items-center gap-3 justify-center">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-brand-800 text-accent-400 font-bold text-xl">
-            B
-          </div>
+        <div className="mb-8 flex items-center justify-center">
           <span className="text-lg font-semibold text-brand-900 dark:text-white">BMVEI Library</span>
         </div>
 
