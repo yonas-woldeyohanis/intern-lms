@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { booksApi, reservationsApi } from '../api/endpoints';
+import { booksApi, reservationsApi, borrowApi } from '../api/endpoints';
 import { useAuthStore } from '../store/authStore';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -28,7 +28,7 @@ import axiosClient from '../api/axiosClient';
 const STATUS_VARIANT = { available: 'success', unavailable: 'warning', archived: 'neutral' };
 
 // ─── Book Card for user grid view ───────────────────────────────────────────
-function BookCard({ book, onReserve, isReserving, isUser, onClick }) {
+function BookCard({ book, onReserve, isReserving, isUser, onClick, isBorrowedByMe }) {
   const hasImage = !!book.cover_image_url;
 
   // Generate a pleasant gradient based on book ID
@@ -68,13 +68,19 @@ function BookCard({ book, onReserve, isReserving, isUser, onClick }) {
           </div>
         )}
         {/* Availability badge */}
-        <span className={`absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-          isAvailable
-            ? 'bg-emerald-500 text-white'
-            : 'bg-slate-800/70 text-white'
-        }`}>
-          {isAvailable ? `${book.available_copies} Available` : 'Unavailable'}
-        </span>
+        {isBorrowedByMe ? (
+          <span className="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-600 text-white">
+            In Your Hands
+          </span>
+        ) : (
+          <span className={`absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+            isAvailable
+              ? 'bg-emerald-500 text-white'
+              : 'bg-slate-800/70 text-white'
+          }`}>
+            {isAvailable ? `${book.available_copies} Available` : 'Unavailable'}
+          </span>
+        )}
       </div>
 
       {/* Info */}
@@ -97,17 +103,24 @@ function BookCard({ book, onReserve, isReserving, isUser, onClick }) {
           </div>
         )}
 
-        {/* Reserve button — only shown to regular users when book is unavailable */}
-        {isUser && !isAvailable && book.status !== 'archived' && (
+        {/* Status area for regular users */}
+        {isUser && book.status !== 'archived' && (
           <div className="mt-auto pt-3">
-            <button
-              onClick={(e) => { e.stopPropagation(); onReserve(book); }}
-              disabled={isReserving}
-              className="w-full flex items-center justify-center gap-2 text-sm font-medium py-2 rounded-xl transition-all bg-brand-600 hover:bg-brand-700 text-white shadow-sm disabled:opacity-50"
-            >
-              <CalendarPlus className="h-4 w-4" />
-              Reserve
-            </button>
+            {isBorrowedByMe ? (
+              <div className="w-full flex items-center justify-center gap-2 text-sm font-medium py-2 rounded-xl bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400">
+                <BookOpen className="h-4 w-4" />
+                Currently with you
+              </div>
+            ) : !isAvailable && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onReserve(book); }}
+                disabled={isReserving}
+                className="w-full flex items-center justify-center gap-2 text-sm font-medium py-2 rounded-xl transition-all bg-brand-600 hover:bg-brand-700 text-white shadow-sm disabled:opacity-50"
+              >
+                <CalendarPlus className="h-4 w-4" />
+                Reserve
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -115,12 +128,25 @@ function BookCard({ book, onReserve, isReserving, isUser, onClick }) {
   );
 }
 
+
 // ─── Main BooksPage ─────────────────────────────────────────────────────────
 export default function BooksPage() {
   const { user } = useAuthStore();
   const canManage = user?.role === 'admin' || user?.role === 'librarian';
   const isUser = user?.role === 'user';
   const queryClient = useQueryClient();
+
+  // Fetch the current user's active borrow records to know which books they have in hand
+  const { data: myBorrowsData } = useQuery({
+    queryKey: ['my-active-borrows', user?.id],
+    queryFn: () => borrowApi.list({ userId: user.id, status: 'borrowed', limit: 200 }).then(r => r.data.data),
+    enabled: isUser && !!user?.id,
+  });
+  const myBorrowedBookIds = useMemo(
+    () => new Set((myBorrowsData?.rows || []).map(r => r.book_id)),
+    [myBorrowsData]
+  );
+
 
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search);
@@ -243,7 +269,12 @@ export default function BooksPage() {
       header: '', id: 'actions',
       cell: ({ row }) => (
         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-          {isUser && row.original.available_copies === 0 && row.original.status !== 'archived' && (
+          {isUser && myBorrowedBookIds.has(row.original.id) ? (
+            <span className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-900/20 dark:text-brand-300 font-medium">
+              <BookOpen className="h-3.5 w-3.5" />
+              In Your Hands
+            </span>
+          ) : isUser && row.original.available_copies === 0 && row.original.status !== 'archived' && (
             <button
               className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg bg-brand-50 text-brand-600 hover:bg-brand-100 dark:bg-brand-900/20 dark:text-brand-300 font-medium disabled:opacity-50"
               onClick={() => handleReserve(row.original)}
@@ -269,7 +300,8 @@ export default function BooksPage() {
         </div>
       )
     }
-  ], [canManage, isUser, reservingId]);
+  ], [canManage, isUser, reservingId, myBorrowedBookIds]);
+
 
   return (
     <div className="space-y-5">
@@ -373,6 +405,7 @@ export default function BooksPage() {
                   onReserve={handleReserve}
                   isReserving={reservingId === book.id}
                   onClick={setDetailsBook}
+                  isBorrowedByMe={myBorrowedBookIds.has(book.id)}
                 />
               ))}
             </motion.div>
