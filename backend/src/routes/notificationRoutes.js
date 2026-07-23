@@ -138,8 +138,8 @@ router.get('/', catchAsync(async (req, res) => {
         id: `my-res-fulfilled-${r.id}`,
         type: 'reservation_fulfilled',
         severity: 'info',
-        title: 'Reservation Ready',
-        message: `Your reservation for "${r.title}" has been fulfilled. You can now borrow it!`,
+        title: 'Reservation Fulfilled & Borrowed',
+        message: `Your reservation for "${r.title}" has been fulfilled, and the book is now checked out to you.`,
         createdAt: r.updated_at
       });
     });

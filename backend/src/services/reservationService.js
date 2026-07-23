@@ -4,6 +4,7 @@ const reservationRepository = require('../repositories/reservationRepository');
 const bookRepository = require('../repositories/bookRepository');
 const settingsRepository = require('../repositories/settingsRepository');
 const auditService = require('../services/auditService');
+const borrowService = require('./borrowService');
 
 async function reserveBook(bookId, userId, req) {
   const book = await bookRepository.findById(bookId);
@@ -35,6 +36,10 @@ async function fulfillReservation(id, actorId, req) {
   const reservation = await reservationRepository.findById(id);
   if (!reservation) throw AppError.notFound('Reservation not found.');
   if (reservation.status !== 'pending') throw AppError.badRequest('Only pending reservations can be fulfilled.');
+  
+  // Automatically borrow the book for the user when their reservation is fulfilled
+  await borrowService.issueBook({ bookId: reservation.book_id, userId: reservation.user_id }, actorId, req);
+  
   const updated = await reservationRepository.updateStatus(id, 'fulfilled');
   await auditService.record({ userId: actorId, action: 'RESERVATION_FULFILLED', entityType: 'reservation', entityId: id, req });
   return updated;
