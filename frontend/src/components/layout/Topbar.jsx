@@ -24,6 +24,18 @@ const SEVERITY_BG = {
   info: 'bg-brand-500/10',
 };
 
+// Map notification types to the page they relate to
+function getNotificationRoute(notification) {
+  switch (notification.type) {
+    case 'overdue':       return '/borrow-records';
+    case 'due_soon':      return '/borrow-records';
+    case 'reservation':   return '/reservations';
+    case 'reservation_fulfilled': return '/borrow-records';
+    case 'broadcast':     return null;
+    default:              return null;
+  }
+}
+
 export default function Topbar({ onOpenMobile, breadcrumb }) {
   const navigate = useNavigate();
   const { user, clearSession } = useAuthStore();
@@ -155,22 +167,31 @@ export default function Topbar({ onOpenMobile, breadcrumb }) {
                 ) : (
                   notifications.map((n) => {
                     const Icon = SEVERITY_ICON[n.severity] || Bell;
+                    const route = getNotificationRoute(n);
                     return (
-                      <li key={n.id} className="relative flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group">
+                      <li
+                        key={n.id}
+                        className={`relative flex items-start gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group ${route ? 'cursor-pointer' : ''}`}
+                        onClick={route ? () => { setNotifOpen(false); navigate(route); } : undefined}
+                        title={route ? 'Click to view' : undefined}
+                      >
                         <div className={`mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg ${SEVERITY_BG[n.severity]}`}>
                           <Icon className={`h-4 w-4 ${SEVERITY_COLOR[n.severity]}`} />
                         </div>
                         <div className="min-w-0 flex-1 pr-6">
                           <p className={`text-xs font-semibold uppercase tracking-wide ${SEVERITY_COLOR[n.severity]}`}>{n.title}</p>
-                          <p className="text-sm text-slate-700 dark:text-slate-200 leading-snug mt-0.5">{n.message}</p>
+                          <p className={`text-sm text-slate-700 dark:text-slate-200 leading-snug mt-0.5 ${route ? 'group-hover:underline' : ''}`}>{n.message}</p>
+                          {route && (
+                            <p className="text-[10px] text-brand-500 dark:text-brand-400 mt-1 font-medium">Click to view →</p>
+                          )}
                           {n.createdAt && (
-                            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1.5 font-medium">
+                            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 font-medium">
                               {formatRelativeTime(n.createdAt)}
                             </p>
                           )}
                         </div>
                         <button
-                          onClick={() => dismissMutation.mutate(n.id)}
+                          onClick={(e) => { e.stopPropagation(); dismissMutation.mutate(n.id); }}
                           disabled={dismissMutation.isPending}
                           className="absolute right-4 top-4 rounded p-1 text-slate-300 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 opacity-0 group-hover:opacity-100 transition-opacity"
                           title="Dismiss"

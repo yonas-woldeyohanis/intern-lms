@@ -139,7 +139,11 @@ export default function BooksPage() {
   // Fetch the current user's active borrow records to know which books they have in hand
   const { data: myBorrowsData } = useQuery({
     queryKey: ['my-active-borrows', user?.id],
-    queryFn: () => borrowApi.list({ userId: user.id, status: 'borrowed', limit: 200 }).then(r => r.data.data),
+    queryFn: () => borrowApi.list({ userId: user.id, limit: 200 }).then(r => {
+      // Include both 'borrowed' and 'overdue' statuses
+      const allRows = r.data.data?.rows || [];
+      return { rows: allRows.filter(rec => rec.status === 'borrowed' || rec.status === 'overdue') };
+    }),
     enabled: isUser && !!user?.id,
   });
   const myBorrowedBookIds = useMemo(

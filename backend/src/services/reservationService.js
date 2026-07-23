@@ -3,6 +3,7 @@ const AppError = require('../utils/AppError');
 const reservationRepository = require('../repositories/reservationRepository');
 const bookRepository = require('../repositories/bookRepository');
 const settingsRepository = require('../repositories/settingsRepository');
+const borrowRepository = require('../repositories/borrowRepository');
 const auditService = require('../services/auditService');
 const borrowService = require('./borrowService');
 
@@ -12,6 +13,10 @@ async function reserveBook(bookId, userId, req) {
   if (book.available_copies > 0) {
     throw AppError.badRequest('This book currently has available copies — please borrow it directly instead of reserving.');
   }
+  // Block if the user already has this book borrowed/overdue
+  const existingLoan = await borrowRepository.activeLoanForBookAndUser(bookId, userId);
+  if (existingLoan) throw AppError.conflict('You already have this book checked out.');
+  
   const existing = await reservationRepository.findActiveForBookAndUser(bookId, userId);
   if (existing) throw AppError.conflict('You already have an active reservation for this book.');
 
