@@ -1,231 +1,198 @@
 # BMVEI Library Management System
 
-An enterprise-grade Library Management System built for **Bishoftu Motor Vehicle
-Engineering Industry (BMVEI)** — replacing paper-based library records with a
-secure, role-based, LAN-deployable web application.
+An enterprise-grade Library Management System built for **Bishoftu Motor Vehicle Engineering Industry (BMVEI)**. This system digitizes the library workflow, replacing paper-based records with a secure, role-based, LAN-deployable web application.
 
 ---
 
-## 1. Tech Stack
-
-**Frontend:** React 18 + Vite, Tailwind CSS, React Router, Axios, React Hook Form + Zod,
-TanStack Query & Table, Zustand, React Hot Toast, Recharts, Lucide Icons, Framer Motion, Day.js
-
-**Backend:** Node.js + Express, MySQL (via `mysql2`), JWT auth, bcrypt, layered
-architecture (Controllers → Services → Repositories → Database)
-
-**Security:** Helmet, CORS allow-list, rate limiting, HPP, input sanitization (XSS),
-parameterized queries (SQLi-safe), RBAC, account lockout, audit logging, centralized
-error handling
+## Table of Contents
+1. [Overview & Features](#overview--features)
+2. [Technology Stack](#technology-stack)
+3. [Project Structure](#project-structure)
+4. [Local Development](#local-development)
+5. [Production Deployment](#production-deployment)
+6. [Security Architecture](#security-architecture)
+7. [User Roles & Permissions](#user-roles--permissions)
 
 ---
 
-## 2. Project Structure
+## Overview & Features
 
-```
+The BMVEI Library Management System provides a comprehensive solution for managing physical library assets across the organization.
+
+**Key Features:**
+- **Digital Catalog:** Search, filter, and browse the complete library inventory.
+- **Borrowing & Returns:** Track active loans, due dates, and manage returns.
+- **Reservations:** Reserve unavailable books and receive automated notifications upon availability.
+- **QR Code Integration:** Generate and scan QR codes for quick book identification.
+- **Role-Based Access Control:** Distinct workflows for Admins, Librarians, and general Employees.
+- **Reporting & Analytics:** Generate insights on library usage, overdue items, and popular resources.
+- **Audit Logging:** Comprehensive tracking of all administrative and user actions for accountability.
+
+## Technology Stack
+
+### Frontend
+- **Framework:** React 18 + Vite
+- **Styling:** Tailwind CSS, Framer Motion
+- **State & Data Fetching:** Zustand, TanStack Query
+- **Routing:** React Router
+- **Forms & Validation:** React Hook Form + Zod
+- **Icons & Charts:** Lucide React, Recharts
+
+### Backend
+- **Framework:** Node.js + Express
+- **Database:** MySQL 8.0 (via `mysql2`)
+- **Authentication:** JWT (JSON Web Tokens), bcrypt
+- **Architecture:** Layered Architecture (Controllers → Services → Repositories)
+- **Background Tasks:** Scheduled jobs for overdue flagging
+
+## Project Structure
+
+```text
 bmvei-lms/
 ├── backend/
 │   ├── src/
-│   │   ├── config/          # env, database pool, logger
-│   │   ├── controllers/     # HTTP request/response handling
-│   │   ├── services/        # business logic
-│   │   ├── repositories/    # SQL data access (parameterized queries only)
-│   │   ├── routes/          # Express routers
-│   │   ├── middleware/      # auth, RBAC, security, error handling, uploads
-│   │   ├── validators/      # express-validator input rules
-│   │   ├── utils/           # AppError, token helpers, export utils
-│   │   ├── jobs/            # background jobs (overdue flagging)
-│   │   ├── app.js           # Express app wiring
-│   │   └── server.js        # entrypoint
+│   │   ├── config/          # Environment variables, database pool configuration
+│   │   ├── controllers/     # HTTP request handling and response formatting
+│   │   ├── services/        # Core business logic
+│   │   ├── repositories/    # Database queries and data access layer
+│   │   ├── routes/          # API route definitions
+│   │   ├── middleware/      # Authentication, authorization, and error handling
+│   │   ├── validators/      # Request payload validation rules
+│   │   ├── utils/           # Helper functions and custom error classes
+│   │   ├── jobs/            # Scheduled background tasks
+│   │   └── server.js        # Application entry point
 │   ├── database/
-│   │   ├── schema.sql       # full normalized MySQL schema
-│   │   ├── migrate.js       # applies schema.sql
-│   │   └── seed.js          # creates the admin account (real bcrypt hash)
-│   ├── uploads/              # book covers + generated QR codes (gitignored)
-│   ├── logs/                 # rotating application/error logs (gitignored)
-│   └── .env.example
+│   │   ├── schema.sql       # MySQL database schema definition
+│   │   ├── migrate.js       # Database migration execution script
+│   │   └── seed.js          # Initial data seeding script
+│   └── uploads/             # Storage for book covers and QR codes
 └── frontend/
     ├── src/
-    │   ├── api/               # axios client + endpoint definitions
-    │   ├── components/        # ui/, layout/, books/, borrow/, users/, common/
-    │   ├── pages/              # route-level pages
-    │   ├── store/               # zustand auth + UI state
-    │   ├── hooks/                # useDebounce, useLookups
-    │   └── utils/                # formatting helpers
-    └── .env.example
+    │   ├── api/             # Axios client and API endpoint configurations
+    │   ├── components/      # Reusable UI components
+    │   ├── pages/           # Application views and routing components
+    │   ├── store/           # Global state management
+    │   ├── hooks/           # Custom React hooks
+    │   └── utils/           # Utility functions and formatters
+    └── public/              # Static assets (images, fonts)
 ```
 
----
-
-## 3. Local Development Setup
+## Local Development
 
 ### Prerequisites
-- Node.js 18+ and npm
-- MySQL 8.0+ (MySQL Workbench recommended for inspecting the schema)
+- Node.js (v18 or higher)
+- npm (v9 or higher)
+- MySQL (v8.0 or higher)
 
-### 3.1 Database
-```bash
-mysql -u root -p -e "CREATE USER 'bmvei_app'@'%' IDENTIFIED BY 'change_me_strong_password';"
-mysql -u root -p -e "GRANT ALL PRIVILEGES ON bmvei_lms.* TO 'bmvei_app'@'%'; FLUSH PRIVILEGES;"
+### Database Setup
+Execute the following commands in your MySQL environment to prepare the database:
+```sql
+CREATE DATABASE IF NOT EXISTS bmvei_lms;
+CREATE USER 'bmvei_app'@'%' IDENTIFIED BY 'your_strong_password';
+GRANT ALL PRIVILEGES ON bmvei_lms.* TO 'bmvei_app'@'%';
+FLUSH PRIVILEGES;
 ```
 
-### 3.2 Backend
-```bash
-cd backend
-cp .env.example .env
-# Edit .env: set DB_PASSWORD, JWT_ACCESS_SECRET, JWT_REFRESH_SECRET (32+ random chars each),
-# and ADMIN_DEFAULT_PASSWORD for the seed step below.
-
-npm install
-npm run migrate     # applies backend/database/schema.sql
-npm run seed         # creates the admin account using a real bcrypt hash (never hardcoded)
-npm run dev            # starts the API on http://localhost:5000 with nodemon
-```
-
-Generate strong JWT secrets, e.g.:
-```bash
-node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
-```
-
-### 3.3 Frontend
-```bash
-cd frontend
-cp .env.example .env.local
-npm install
-npm run dev    # starts Vite dev server on http://localhost:5173, proxies /api to :5000
-```
-
-Log in with the username/password you set as `ADMIN_DEFAULT_USERNAME` /
-`ADMIN_DEFAULT_PASSWORD` in `backend/.env` before seeding. **Change this password
-immediately** via the Profile page after first login.
-
----
-
-## 4. Building For Production
-
-```bash
-cd frontend
-npm run build      # outputs static assets to frontend/dist/
-```
-
-Serve `frontend/dist/` with any static file server or reverse proxy (nginx example below).
-The backend runs as a standalone Node process (`npm start` from `backend/`, or under a
-process manager like `pm2`/`systemd` for production).
-
----
-
-## 5. LAN Deployment (Local Server)
-
-This system is designed to run on a dedicated internal server on BMVEI's LAN, accessible
-to workstations via the server's local IP.
-
-1. **Provision the server**: Node.js 18+, MySQL 8+, nginx (recommended reverse proxy).
-2. **Clone/copy this project** to the server, e.g. `/opt/bmvei-lms`.
-3. **Backend**: follow section 3.2 above with production values in `.env`
-   (`NODE_ENV=production`, strong secrets, real DB credentials). Run with a process
-   manager so it restarts on crash/reboot:
+### Backend Setup
+1. Navigate to the backend directory:
    ```bash
-   npm install -g pm2
-   cd /opt/bmvei-lms/backend
-   pm2 start src/server.js --name bmvei-lms-api
-   pm2 save
-   pm2 startup
+   cd backend
    ```
-4. **Frontend**: build static assets (`npm run build` in `frontend/`) and serve them
-   via nginx, proxying `/api` and `/uploads` to the backend:
-
-   ```nginx
-   server {
-       listen 80;
-       server_name 192.168.1.50;   # the server's LAN IP or internal hostname
-
-       root /opt/bmvei-lms/frontend/dist;
-       index index.html;
-
-       location / {
-           try_files $uri /index.html;
-       }
-
-       location /api/ {
-           proxy_pass http://127.0.0.1:5000;
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-           proxy_set_header X-Forwarded-Proto $scheme;
-       }
-
-       location /uploads/ {
-           proxy_pass http://127.0.0.1:5000;
-       }
-   }
+2. Configure environment variables:
+   ```bash
+   cp .env.example .env
    ```
-5. Update `backend/.env`: `CLIENT_URL=http://192.168.1.50` (matches the CORS allow-list).
-6. Workstations on the LAN access the system at `http://192.168.1.50`.
-7. **Cloud migration path**: because the backend is a stateless Express API behind
-   environment-driven config, this same codebase can be redeployed to any cloud VM,
-   container platform, or PaaS later — just point `DB_HOST` at a managed MySQL instance
-   and update `CLIENT_URL`/CORS accordingly. No code changes required.
+   *Update the `.env` file with your database credentials and generate secure JWT secrets.*
+3. Install dependencies and initialize the database:
+   ```bash
+   npm install
+   npm run migrate
+   npm run seed
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+   *The API will be available at `http://localhost:5000`.*
+
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Configure environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+3. Install dependencies and start the application:
+   ```bash
+   npm install
+   npm run dev
+   ```
+   *The web application will be accessible at `http://localhost:5173`.*
+
+## Production Deployment
+
+This system is engineered for internal deployment on the BMVEI Local Area Network (LAN).
+
+### Build Process
+1. Build the frontend assets:
+   ```bash
+   cd frontend
+   npm run build
+   ```
+2. The generated static files will be located in `frontend/dist/`.
+
+### Deployment Configuration (Nginx Example)
+A standard Nginx configuration acting as a reverse proxy for the Node.js backend and serving the static frontend files:
+
+```nginx
+server {
+    listen 80;
+    server_name 192.168.1.50; # Replace with actual LAN IP
+
+    root /opt/bmvei-lms/frontend/dist;
+    index index.html;
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /uploads/ {
+        proxy_pass http://127.0.0.1:5000;
+    }
+}
+```
+
+*Ensure the backend is running continuously using a process manager like PM2 (`pm2 start src/server.js`).*
+
+## Security Architecture
+
+The application implements enterprise security standards to protect institutional data:
+
+- **Authentication:** Secure login using bcrypt password hashing and short-lived JWT access tokens paired with HttpOnly refresh cookies.
+- **Authorization:** Strict, route-level Role-Based Access Control (RBAC) enforced on the server.
+- **Data Protection:** Prevention of SQL Injection through parameterized queries (via `mysql2`).
+- **Input Validation:** Comprehensive XSS prevention and request sanitization.
+- **Rate Limiting:** Protection against brute-force attacks and DDOS via request throttling.
+- **Account Security:** Automatic account lockout mechanisms after consecutive failed login attempts.
+- **Audit Trails:** Immutable logging of all sensitive actions, user modifications, and system events.
+
+## User Roles & Permissions
+
+| Role | System Capabilities |
+|------|---------------------|
+| **Admin** | Complete system access. Manages users, system settings, lookup data, views audit logs, and can access all reports. |
+| **Librarian** | Manages library inventory, processes borrows/returns, fulfills reservations, and views relevant operational reports. |
+| **Employee** | Can search the catalog, view their own borrowing history, reserve books, and manage their personal profile. |
 
 ---
-
-## 6. Security Notes
-
-- **Passwords**: hashed with bcrypt (cost factor configurable, default 12). Policy enforced
-  both client- and server-side: 8+ chars, upper, lower, number, special character.
-- **Account lockout**: after `MAX_FAILED_LOGIN_ATTEMPTS` (default 5) failed logins, the
-  account locks for `ACCOUNT_LOCK_MINUTES` (default 15).
-- **JWT**: short-lived access tokens (15 min default) + httpOnly, sameSite=strict refresh
-  cookie (7 days default). Access tokens are never stored in a cookie.
-- **RBAC**: enforced server-side on every protected route via `authorize(...)` middleware —
-  the frontend nav/route guards are a UX convenience, not the security boundary.
-- **SQL injection**: all queries go through parameterized placeholders via `mysql2`;
-  multi-statement execution is disabled by default on the runtime pool.
-- **XSS**: all request bodies/params/query strings are sanitized before reaching
-  controllers.
-- **Rate limiting**: general API limiter + a stricter limiter on `/auth/*` endpoints to
-  slow brute-force attempts.
-- **Audit logging**: every create/update/delete, login attempt, password change, and
-  report export is recorded in `audit_logs` with actor, IP, and timestamp.
-- **File uploads**: restricted to JPEG/PNG/WEBP, size-capped, renamed to random filenames
-  (no path traversal / overwrite risk).
-- **Secrets**: nothing sensitive is hardcoded. `backend/.env` is gitignored; only
-  `.env.example` (no real values) is committed. The admin account is created via
-  `npm run seed`, which generates a genuine bcrypt hash at run time — never a
-  precomputed/shared hash in source control.
-
-**Before going live:** change the seeded admin password, generate fresh JWT secrets,
-set `NODE_ENV=production`, and review `backend/.env` for any placeholder values.
-
----
-
-## 7. Default Roles & Permissions
-
-| Role | Capabilities |
-|---|---|
-| **Admin** | Full access: user management, all lookup data, reports, audit logs, system settings |
-| **Librarian** | Book/borrow/return/reservation management, member lookup, reports |
-| **User (Employee)** | Search catalog, view own borrowing history, reserve unavailable books, manage own profile |
-
----
-
-## 8. Known Simplifications / Follow-ups
-
-These are flagged intentionally rather than silently built in:
-
-- **Email delivery** for password resets is not wired to a real provider — in
-  non-production mode the API returns the reset token directly in the response so the
-  flow is testable end-to-end. Wire in SMTP/SendGrid/SES in `authService.requestPasswordReset`
-  before production use.
-- **RFID/barcode scanning** is not implemented (out of scope per the spec, which asked
-  only that the QR module be designed to support this later). The QR payload format
-  (`{ type, bookId }`) is deliberately simple so it's easy to extend to other scan types.
-- **Backup management** (mentioned under Admin permissions) is an infrastructure/ops
-  concern — set up routine `mysqldump` cron jobs and file-system backups of `backend/uploads/`
-  as part of your deployment, rather than a UI feature.
-
----
-
-## 9. License / Internal Use
-
-Built for internal use by Bishoftu Motor Vehicle Engineering Industry. Not intended for
-public distribution.
+*© BMVEI - Internal Use Only*
