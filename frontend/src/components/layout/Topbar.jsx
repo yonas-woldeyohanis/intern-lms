@@ -27,10 +27,10 @@ const SEVERITY_BG = {
 // Map notification types to the page they relate to
 function getNotificationRoute(notification) {
   switch (notification.type) {
-    case 'overdue':       return '/borrow-records';
-    case 'due_soon':      return '/borrow-records';
+    case 'overdue':       return '/my-loans';
+    case 'due_soon':      return '/my-loans';
     case 'reservation':   return '/reservations';
-    case 'reservation_fulfilled': return '/borrow-records';
+    case 'reservation_fulfilled': return '/my-loans';
     case 'broadcast':     return null;
     default:              return null;
   }
