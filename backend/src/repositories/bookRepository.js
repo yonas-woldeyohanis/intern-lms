@@ -116,7 +116,7 @@ async function dashboardCounts() {
       (SELECT COUNT(*) FROM books WHERE status != 'archived') AS total_books,
       (SELECT COALESCE(SUM(available_copies),0) FROM books WHERE status != 'archived') AS available_copies,
       (SELECT COALESCE(SUM(total_copies - available_copies),0) FROM books WHERE status != 'archived') AS borrowed_copies,
-      (SELECT COUNT(*) FROM borrow_records WHERE status = 'borrowed' AND due_date < CURDATE()) AS overdue_count,
+      (SELECT COUNT(*) FROM borrow_records WHERE status = 'overdue' OR (status = 'borrowed' AND due_date < CURDATE())) AS overdue_count,
       (SELECT COUNT(*) FROM users WHERE status = 'active') AS active_members
   `);
   return totals;
