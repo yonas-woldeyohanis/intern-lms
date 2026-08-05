@@ -6,6 +6,7 @@ import { borrowApi } from '../api/endpoints';
 import DataTable from '../components/ui/DataTable';
 import Badge from '../components/ui/Badge';
 import { formatDate } from '../utils/format';
+import { useAuthStore } from '../store/authStore';
 
 const STATUS_VARIANT = { borrowed: 'info', returned: 'success', overdue: 'danger', lost: 'neutral' };
 
@@ -22,6 +23,8 @@ function StatPill({ icon: Icon, label, value, color }) {
 }
 
 export default function MyLoansPage() {
+  const { user } = useAuthStore();
+  const isStaff = user?.role === 'admin' || user?.role === 'librarian';
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ['my-loans'],
@@ -38,7 +41,7 @@ export default function MyLoansPage() {
   });
 
   const loans = data?.rows || [];
-  const active = loans.filter((l) => l.status === 'borrowed');
+  const active = loans.filter((l) => l.status === 'borrowed' || l.status === 'overdue');
   const overdue = loans.filter((l) => l.status === 'overdue');
   const returned = loans.filter((l) => l.status === 'returned');
 
@@ -71,8 +74,11 @@ export default function MyLoansPage() {
     },
     { header: 'Returned On', cell: ({ row }) => <span className="text-sm">{formatDate(row.original.return_date) || '—'}</span> },
     { header: 'Renewals', cell: ({ row }) => <span className="text-sm text-center">{row.original.renewal_count}</span> },
-    { header: 'Status', cell: ({ row }) => <Badge variant={STATUS_VARIANT[row.original.status]}>{row.original.status}</Badge> },
     {
+      header: 'Status',
+      cell: ({ row }) => <Badge variant={STATUS_VARIANT[row.original.status]}>{row.original.status}</Badge>
+    },
+    ...(isStaff ? [{
       header: '',
       id: 'actions',
       cell: ({ row }) => {
@@ -89,8 +95,8 @@ export default function MyLoansPage() {
           </button>
         );
       }
-    }
-  ], [renewMutation]);
+    }] : [])
+  ], [renewMutation, isStaff]);
 
   return (
     <div className="space-y-6">

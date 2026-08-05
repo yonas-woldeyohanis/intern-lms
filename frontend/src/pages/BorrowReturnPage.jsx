@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { RotateCw, Undo2, AlertOctagon, PlusCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -15,11 +16,22 @@ import IssueBookModal from '../components/borrow/IssueBookModal';
 const STATUS_VARIANT = { borrowed: 'info', returned: 'success', overdue: 'danger', lost: 'neutral' };
 
 export default function BorrowReturnPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialStatus = searchParams.get('status') || '';
+  
   const queryClient = useQueryClient();
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState(initialStatus);
   const [page, setPage] = useState(1);
   const [issueOpen, setIssueOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null); // { type, record }
+
+  useEffect(() => {
+    if (status) {
+      setSearchParams({ status });
+    } else {
+      setSearchParams({});
+    }
+  }, [status, setSearchParams]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['borrow-records', { page, status }],

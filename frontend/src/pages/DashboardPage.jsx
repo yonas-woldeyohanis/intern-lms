@@ -40,9 +40,9 @@ function ChartTooltip({ active, payload, label, labelMap = {} }) {
   );
 }
 
-function StatCard({ icon: Icon, label, value, tone, subtext }) {
-  return (
-    <Card className="flex items-center gap-4">
+function StatCard({ icon: Icon, label, value, tone, subtext, to }) {
+  const content = (
+    <>
       <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl ${tone}`}>
         <Icon className="h-7 w-7" />
       </div>
@@ -51,6 +51,22 @@ function StatCard({ icon: Icon, label, value, tone, subtext }) {
         <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-0.5">{label}</p>
         {subtext && <p className="text-xs text-slate-400 mt-0.5">{subtext}</p>}
       </div>
+    </>
+  );
+
+  if (to) {
+    return (
+      <Link to={to} className="block h-full transition-transform hover:-translate-y-1">
+        <Card className="flex items-center gap-4 h-full hover:shadow-md cursor-pointer transition-shadow">
+          {content}
+        </Card>
+      </Link>
+    );
+  }
+
+  return (
+    <Card className="flex items-center gap-4 h-full">
+      {content}
     </Card>
   );
 }
@@ -70,7 +86,7 @@ function UserDashboard({ user }) {
 
   const loans = loansData?.rows || [];
   const reservations = resData?.rows || [];
-  const activeLoans = loans.filter((l) => l.status === 'borrowed');
+  const activeLoans = loans.filter((l) => l.status === 'borrowed' || l.status === 'overdue');
   const overdueLoans = loans.filter((l) => l.status === 'overdue');
   const pendingRes = reservations.filter((r) => r.status === 'pending');
 
@@ -113,14 +129,17 @@ function UserDashboard({ user }) {
             <StatCard
               icon={BookMarked} label="Active Loans" value={activeLoans.length}
               tone="bg-brand-500/10 text-brand-700 dark:text-brand-300"
+              to="/my-loans"
             />
             <StatCard
               icon={AlertTriangle} label="Overdue Books" value={overdueLoans.length}
               tone={overdueLoans.length > 0 ? 'bg-danger-500/10 text-danger-600' : 'bg-slate-100 text-slate-400'}
+              to="/my-loans"
             />
             <StatCard
               icon={CalendarCheck} label="Pending Reservations" value={pendingRes.length}
               tone="bg-accent-400/15 text-accent-700 dark:text-accent-300"
+              to="/reservations"
             />
           </>
         )}
@@ -238,11 +257,11 @@ function StaffDashboard({ user }) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <StatCard icon={BookOpen} label="Total Books" value={totals.totalBooks ?? 0} tone="bg-brand-500/10 text-brand-700" />
+        <StatCard icon={BookOpen} label="Total Books" value={totals.totalBooks ?? 0} tone="bg-brand-500/10 text-brand-700" to="/books" />
         <StatCard icon={CheckCircle2} label="Available" value={totals.availableBooks ?? 0} tone="bg-success-500/10 text-success-600" />
-        <StatCard icon={Clock} label="Borrowed" value={totals.borrowedBooks ?? 0} tone="bg-accent-400/20 text-accent-600" />
-        <StatCard icon={AlertTriangle} label="Overdue" value={totals.overdueBooks ?? 0} tone="bg-danger-500/10 text-danger-600" />
-        <StatCard icon={UsersIcon} label="Active Members" value={totals.activeMembers ?? 0} tone="bg-brand-500/10 text-brand-700" />
+        <StatCard icon={Clock} label="Borrowed" value={totals.borrowedBooks ?? 0} tone="bg-accent-400/20 text-accent-600" to="/borrow-records?status=borrowed" />
+        <StatCard icon={AlertTriangle} label="Overdue" value={totals.overdueBooks ?? 0} tone="bg-danger-500/10 text-danger-600" to="/borrow-records?status=overdue" />
+        <StatCard icon={UsersIcon} label="Active Members" value={totals.activeMembers ?? 0} tone="bg-brand-500/10 text-brand-700" to="/members" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
