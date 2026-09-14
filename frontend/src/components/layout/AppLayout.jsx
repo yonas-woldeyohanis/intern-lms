@@ -22,7 +22,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen relative">
       <Sidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
-      <div className={`flex min-h-screen flex-col transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72'}`}>
+      <div className={`flex min-h-screen flex-col transition-all duration-300 ${sidebarCollapsed ? 'lg:pl-24' : 'lg:pl-[296px]'}`}>
         <Topbar onOpenMobile={() => setMobileOpen(true)} breadcrumb={breadcrumb} />
         <main className="flex-1 p-4 lg:p-6 overflow-hidden">
           <ErrorBoundary>

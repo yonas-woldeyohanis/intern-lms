@@ -50,7 +50,7 @@ function BookCard({ book, onReserve, isReserving, isUser, onClick, isBorrowedByM
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
       }}
-      className="group flex flex-col rounded-2xl bg-white dark:bg-slate-900 shadow-sm hover:shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden transition-all duration-200 hover:-translate-y-1 cursor-pointer"
+      className="group flex flex-col rounded-2xl bg-brand-50/70 dark:bg-brand-950/70 shadow-sm hover:shadow-md border border-brand-500/20 dark:border-brand-500/20 overflow-hidden transition-all duration-200 hover:-translate-y-1 cursor-pointer"
       onClick={() => onClick(book)}
     >
       {/* Cover */}

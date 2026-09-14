@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,18 +7,36 @@
 @layer base {
   html {
     @apply antialiased;
-    font-size: 16px;
+    font-size: 17px;
     scroll-behavior: smooth;
   }
   body {
     @apply font-sans text-slate-800 dark:text-slate-100 bg-surface-light dark:bg-surface-dark bg-fixed;
     line-height: 1.6;
-    background-image: radial-gradient(circle at 100% 0%, rgba(30,58,138,0.05) 0%, transparent 25%),
-                      radial-gradient(circle at 0% 100%, rgba(16,185,129,0.05) 0%, transparent 25%);
+    overflow-x: hidden;
   }
   .dark body {
-    background-image: radial-gradient(circle at 100% 0%, rgba(56,189,248,0.05) 0%, transparent 35%),
-                      radial-gradient(circle at 0% 100%, rgba(129,140,248,0.08) 0%, transparent 35%);
+  }
+
+  /* ── Global BMVEI logo watermark ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    /* Use removebg version for BOTH themes so there's no white box */
+    background-image: url('/ENGINEERING-CORP-removebg-preview.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+    opacity: 0.15;
+    animation: bmvei-watermark-pulse 10s ease-in-out infinite;
+    will-change: opacity, transform;
+  }
+  .dark body::before {
+    opacity: 0.15;
+    filter: brightness(1.5) saturate(0.7);
   }
   * {
     @apply border-slate-200 dark:border-slate-800/60;
@@ -27,8 +45,10 @@
     transition-duration: 250ms;
   }
   h1, h2, h3, h4, h5, h6 {
-    line-height: 1.3;
-    letter-spacing: -0.02em;
+    font-family: 'Barlow Condensed', 'Inter', ui-sans-serif, sans-serif;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 700;
   }
 
   /* Custom scrollbar */
@@ -39,14 +59,28 @@
 }
 
 @layer components {
+  /* ── Buttons with Premium Sweep ── */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-surface-dark;
+    @apply relative inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-base font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-surface-dark min-w-0 overflow-hidden isolate;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
+  
+  /* Shine sweep element */
+  .btn::after {
+    content: '';
+    @apply absolute inset-0 -z-10 translate-x-[-100%] transition-transform duration-700 ease-in-out;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  }
+  .btn:hover:not(:disabled)::after {
+    transform: translateX(100%);
+  }
+
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-500 active:scale-[0.98] focus:ring-brand-500 shadow-md shadow-brand-500/20 border border-brand-500/50 hover:shadow-brand-500/30;
+    @apply btn bg-brand-600 text-white hover:bg-brand-500 active:scale-[0.98] focus:ring-brand-500 shadow-[0_4px_14px_0_rgba(0,113,206,0.25)] border border-brand-500/50 hover:shadow-[0_6px_20px_rgba(0,113,206,0.35)];
   }
   .btn-accent {
-    @apply btn bg-accent-400 text-brand-950 hover:bg-accent-300 active:scale-[0.98] focus:ring-accent-400 shadow-md shadow-accent-400/20 border border-accent-400/50 hover:shadow-accent-400/30;
+    @apply btn bg-accent-400 text-brand-950 hover:bg-accent-300 active:scale-[0.98] focus:ring-accent-400 shadow-[0_4px_14px_0_rgba(34,211,238,0.25)] border border-accent-400/50 hover:shadow-[0_6px_20px_rgba(34,211,238,0.35)];
   }
   .btn-secondary {
     @apply btn bg-white/80 text-slate-700 border border-slate-200 hover:bg-white active:scale-[0.98] dark:bg-slate-800/80 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-700/80 focus:ring-slate-400 backdrop-blur-md shadow-sm;
@@ -55,34 +89,114 @@
     @apply btn bg-danger-500 text-white hover:bg-danger-400 active:scale-[0.98] focus:ring-danger-500 shadow-md shadow-danger-500/20 border border-danger-500/50;
   }
   
+  /* ── Cards with Interactive Glow ── */
   .glass-card {
-    @apply bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)];
+    @apply bg-brand-50/70 dark:bg-brand-950/70 border border-brand-500/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative isolate overflow-hidden;
   }
 
   .card {
     @apply glass-card rounded-2xl transition-all duration-300;
   }
+  .card::before {
+    content: '';
+    @apply absolute -inset-px -z-10 rounded-2xl opacity-0 transition-opacity duration-300;
+    background: radial-gradient(circle at center, rgba(0,113,206,0.1) 0%, transparent 70%);
+  }
   .card:hover {
     @apply shadow-[0_12px_40px_rgb(0,0,0,0.08)] dark:shadow-[0_12px_40px_rgb(0,0,0,0.3)] -translate-y-1;
   }
-  .input {
-    @apply w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-900/50 px-3.5 py-3 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500/50 transition-all duration-200 backdrop-blur-sm shadow-sm;
+  .card:hover::before {
+    @apply opacity-100;
   }
+
+  /* ── Premium Inputs ── */
+  .input {
+    @apply w-full rounded-xl border border-brand-500/20 dark:border-brand-500/30 bg-white dark:bg-slate-900 px-4 py-3.5 text-base text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:border-brand-500/80 focus:ring-4 focus:ring-brand-500/10 transition-all duration-200 shadow-sm;
+  }
+  
   .label {
-    @apply block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-1.5 ml-0.5 tracking-wide;
+    @apply block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-2 ml-0.5 tracking-wide uppercase;
   }
   .badge {
-    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold tracking-wide uppercase;
+    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-wide uppercase;
   }
+  
+  /* ── Animated Text Polish ── */
   .page-title {
-    @apply text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 tracking-tight;
+    font-family: 'Barlow Condensed', 'Inter', ui-sans-serif, sans-serif;
+    @apply text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-brand-900 to-slate-700 dark:from-white dark:via-brand-100 dark:to-slate-300 tracking-tight;
+    background-size: 200% auto;
+    animation: gradient-shift 8s ease infinite;
+    letter-spacing: -0.01em;
   }
   .page-subtitle {
-    @apply text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium;
+    @apply text-base text-slate-500 dark:text-slate-400 mt-1.5 font-medium;
   }
 }
 
 @layer utilities {
   .hide-scrollbar::-webkit-scrollbar { display: none; }
   .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  
+  /* Premium Loading Shimmer */
+  .animate-shimmer {
+    background: #e2e8f0;
+    background-image: linear-gradient(
+      to right,
+      #e2e8f0 0%,
+      #f1f5f9 20%,
+      #e2e8f0 40%,
+      #e2e8f0 100%
+    );
+    background-repeat: no-repeat;
+    background-size: 800px 100%; 
+    animation: shimmer 1.5s infinite linear;
+  }
+  .dark .animate-shimmer {
+    background: #1e293b;
+    background-image: linear-gradient(
+      to right,
+      #1e293b 0%,
+      #334155 20%,
+      #1e293b 40%,
+      #1e293b 100%
+    );
+  }
+
+  /* Cascade Entrance Animation for lists/rows */
+  .animate-cascade-up {
+    animation: cascadeUp 0.4s ease-out forwards;
+    opacity: 0;
+  }
+}
+
+/* ── Keyframes ── */
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes cascadeUp {
+  0% { opacity: 0; transform: translateY(12px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── BMVEI Watermark Animations ── */
+@keyframes bmvei-watermark-pulse {
+  0%   { opacity: 0.12; transform: scale(1)    rotate(0deg); }
+  30%  { opacity: 0.18; transform: scale(1.02) rotate(1deg); }
+  60%  { opacity: 0.14; transform: scale(0.98) rotate(-0.5deg); }
+  100% { opacity: 0.12; transform: scale(1)    rotate(0deg); }
+}
+
+/* Make sure all page content sits above the watermark */
+#root {
+  position: relative;
+  z-index: 1;
 }

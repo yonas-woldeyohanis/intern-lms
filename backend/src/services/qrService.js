@@ -13,17 +13,15 @@ if (!fs.existsSync(QR_DIR)) {
  * so that scanning it outside the app shows useful information.
  */
 async function generateBookQr(book) {
-  const payload = JSON.stringify({
-    type: 'BMVEI_LMS_BOOK',
-    bookId: book.id,
-    title: book.title,
-    isbn: book.isbn,
-    author: book.author_name,
-    publisher: book.publisher_name,
-    category: book.category_name,
-    year: book.publication_year,
-    shelf: book.shelf_code
-  });
+  const payload = [
+    `Title: ${book.title}`,
+    `Author: ${book.author_name || 'Unknown'}`,
+    `ISBN: ${book.isbn}`,
+    `Category: ${book.category_name || '-'}`,
+    `Publisher: ${book.publisher_name || '-'}`,
+    `Shelf: ${book.shelf_code || '-'}`,
+    `Year: ${book.publication_year || '-'}`
+  ].join('\n');
   const filename = `book-${book.id}.png`;
   const filePath = path.join(QR_DIR, filename);
   await QRCode.toFile(filePath, payload, {

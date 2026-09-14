@@ -85,22 +85,27 @@ export default function BookFormModal({ open, onClose, book, onSuccess }) {
    */
   async function resolveId(val, api, payload) {
     if (!val.text.trim()) return null;
-    if (val.id !== null) return val.id;
-    // Create new entity
+    if (val.id !== null && val.id !== undefined) return val.id;
+    // Create new entity — genericCrudController returns { data: { item: { id } } }
     const res = await api.create(payload);
-    return res.data?.data?.id || res.data?.id;
+    return (
+      res.data?.data?.item?.id   // genericCrudController shape ✓
+      ?? res.data?.data?.id      // legacy shape
+      ?? res.data?.item?.id      // alternative
+      ?? res.data?.id            // bare shape
+      ?? null
+    );
   }
 
   async function onSubmit(values) {
     setSubmitting(true);
     try {
-      // Resolve combobox free-text entries into real IDs by auto-creating them
-      const [resolvedAuthorId, resolvedPublisherId, resolvedCategoryId, resolvedShelfId] = await Promise.all([
-        resolveId(authorVal, authorsApi, { full_name: authorVal.text.trim() }),
-        resolveId(publisherVal, publishersApi, { name: publisherVal.text.trim() }),
-        resolveId(categoryVal, categoriesApi, { name: categoryVal.text.trim() }),
-        resolveId(shelfVal, shelvesApi, { code: shelfVal.text.trim(), location_description: shelfVal.text.trim() })
-      ]);
+      // Resolve combobox free-text entries into real IDs by auto-creating them.
+      // Sequential resolution for author first so the cache is warm before saving.
+      const resolvedAuthorId    = await resolveId(authorVal,    authorsApi,    { full_name: authorVal.text.trim() });
+      const resolvedPublisherId = await resolveId(publisherVal, publishersApi, { name: publisherVal.text.trim() });
+      const resolvedCategoryId  = await resolveId(categoryVal,  categoriesApi, { name: categoryVal.text.trim() });
+      const resolvedShelfId     = await resolveId(shelfVal,     shelvesApi,    { code: shelfVal.text.trim(), location_description: shelfVal.text.trim() });
 
       // Invalidate lookup caches so new entries show up in dropdowns next time
       if (authorVal.id === null && authorVal.text)       queryClient.invalidateQueries({ queryKey: ['authors'] });
@@ -125,6 +130,10 @@ export default function BookFormModal({ open, onClose, book, onSuccess }) {
         await booksApi.create(formData);
         toast.success('Book added successfully.');
       }
+
+      // Refetch books so the new/updated entry comes back with joined author_name from the DB
+      await queryClient.invalidateQueries({ queryKey: ['books'] });
+
       onSuccess?.();
       onClose();
     } catch (err) {

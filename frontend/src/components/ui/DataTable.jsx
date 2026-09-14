@@ -18,7 +18,7 @@ export default function DataTable({
 
   if (isLoading) {
     return (
-      <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-slate-800">
+      <div className="overflow-hidden rounded-xl border border-brand-500/20">
         <div className="p-4"><TableSkeleton cols={columns.length} /></div>
       </div>
     );
@@ -29,9 +29,9 @@ export default function DataTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-slate-800">
-      <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-800 text-sm">
-        <thead className="bg-slate-50 dark:bg-slate-800/60">
+    <div className="overflow-x-auto rounded-xl border border-brand-500/20">
+      <table className="min-w-full divide-y divide-brand-500/10 text-sm">
+        <thead className="bg-brand-600/5 dark:bg-brand-900/40">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -53,12 +53,13 @@ export default function DataTable({
             </tr>
           ))}
         </thead>
-        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-          {table.getRowModel().rows.map((row) => (
+        <tbody className="divide-y divide-brand-500/10">
+          {table.getRowModel().rows.map((row, index) => (
             <tr
               key={row.id}
               onClick={() => onRowClick?.(row.original)}
-              className={`${onRowClick ? 'cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40' : ''} transition-colors`}
+              className={`animate-cascade-up ${onRowClick ? 'cursor-pointer hover:bg-brand-600/10 dark:hover:bg-brand-900/60' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'} transition-colors`}
+              style={{ animationDelay: `${index * 35}ms` }}
             >
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id} className="px-4 py-3.5 text-slate-700 dark:text-slate-200 whitespace-nowrap">

@@ -92,15 +92,15 @@ export default function Topbar({ onOpenMobile, breadcrumb }) {
   }
 
   return (
-    <header className="sticky top-0 z-20 mx-4 lg:mx-6 mt-4 flex h-16 items-center justify-between gap-4 rounded-3xl border border-white/20 dark:border-slate-700/50 bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl px-4 lg:px-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)]">
+    <header className="sticky top-4 z-20 mx-4 lg:mx-6 mb-6 flex h-[60px] items-center justify-between gap-4 rounded-full border border-white/50 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60 px-5 shadow-[0_8px_32px_rgba(0,113,206,0.08)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl backdrop-saturate-150 transition-all duration-300">
       <div className="flex items-center gap-3 min-w-0">
-        <button className="lg:hidden text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" onClick={onOpenMobile}>
+        <button className="lg:hidden text-slate-500 hover:text-brand-600 dark:hover:text-brand-400 p-1.5 rounded-full hover:bg-white/50 dark:hover:bg-slate-800/50 transition-colors" onClick={onOpenMobile}>
           <Menu className="h-5 w-5" />
         </button>
         <button className="hidden lg:block text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800" onClick={toggleSidebar}>
           {sidebarCollapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
         </button>
-        <nav className="truncate text-sm font-medium text-slate-500 dark:text-slate-400">{breadcrumb}</nav>
+        <nav className="truncate text-base font-semibold text-slate-500 dark:text-slate-400">{breadcrumb}</nav>
       </div>
 
       <div className="flex items-center gap-1 shrink-0">
@@ -134,7 +134,7 @@ export default function Topbar({ onOpenMobile, breadcrumb }) {
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60">
                 <div className="flex items-center gap-2">
                   <Bell className="h-4 w-4 text-slate-500" />
-                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Notifications</span>
+                <span className="text-base font-semibold text-slate-700 dark:text-slate-200">Notifications</span>
                   {count > 0 && (
                     <span className="inline-flex items-center justify-center rounded-full bg-danger-500/10 text-danger-600 text-xs font-semibold px-2 py-0.5">
                       {count} new
@@ -232,7 +232,7 @@ export default function Topbar({ onOpenMobile, breadcrumb }) {
           {menuOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-              <div className="absolute right-0 z-20 mt-2 w-52 rounded-2xl border border-white/20 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl py-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
+              <div className="absolute right-0 z-20 mt-2 w-52 rounded-2xl border border-brand-500/20 bg-brand-50/90 dark:bg-brand-950/90 py-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
                 <div className="px-4 py-3 border-b border-slate-200/50 dark:border-slate-700/50 mb-1">
                   <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">{fullName({ first_name: user?.first_name, last_name: user?.last_name })}</p>
                   <p className="text-xs text-slate-400 capitalize">{user?.role} · {user?.email}</p>
