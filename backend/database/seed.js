@@ -6,7 +6,7 @@
  * Usage: npm run seed   (from backend/, after `npm run migrate`)
  */
 require('dotenv').config();
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const mysql = require('mysql2/promise');
 
 async function seed() {
